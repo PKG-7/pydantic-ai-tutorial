@@ -9,7 +9,8 @@ from typing import Dict, List, Optional
 import nest_asyncio
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, ModelRetry, RunContext, Tool
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.ollama import OllamaModel
+from openai import AsyncOpenAI
 
 from utils.markdown import to_markdown
 
@@ -17,7 +18,16 @@ from utils.markdown import to_markdown
 nest_asyncio.apply()
 
 
-model = OpenAIModel("gpt-4o")
+# Инициализация модели Ollama
+ollama_model = OllamaModel(
+    model_name='qwen2.5:32b',
+    # model_name='qwen2.5-coder:7b',
+    # model_name='llama3.2-vision',
+    # model_name='llama3.3:70b-instruct-q2_K',
+    base_url='http://192.168.1.31:11434/v1'
+)
+
+model = ollama_model
 
 # --------------------------------------------------------------
 # 1. Simple Agent - Hello World Example
@@ -32,21 +42,23 @@ Key concepts:
 
 agent1 = Agent(
     model=model,
-    system_prompt="You are a helpful customer support agent. Be concise and friendly.",
+    system_prompt="Ты полезный помошник. Отвечай на русском языке.",
 )
 
-# Example usage of basic agent
-response = agent1.run_sync("How can I track my order #12345?")
-print(response.data)
-print(response.all_messages())
-print(response.cost())
+# # Example usage of basic agent
+# try:
+#     response = agent1.run_sync("Привет, как дела?")
+#     print("Connection successful!")
+#     print(response.data)
+# except Exception as e:
+#     print(f"Connection error: {e}")
 
 
-response2 = agent1.run_sync(
-    user_prompt="What was my previous question?",
-    message_history=response.new_messages(),
-)
-print(response2.data)
+# response2 = agent1.run_sync(
+#     user_prompt="Какой был мой предыдущий вопрос?",
+#     message_history=response.new_messages(),
+# )
+# print(response2.data)
 
 # --------------------------------------------------------------
 # 2. Agent with Structured Response

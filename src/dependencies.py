@@ -16,7 +16,7 @@ class Order(BaseModel):
     items: List[str]
 
 class CustomerDetails(BaseModel):
-    """Структура для входящих запросов клиентов."""
+    """Структура для данных клиента."""
     customer_id: str
     name: str
     email: str

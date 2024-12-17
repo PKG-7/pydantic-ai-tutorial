@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import uvicorn
@@ -11,6 +12,22 @@ from structured_response import agent2
 from tools import agent, CustomerDetails
 
 app = FastAPI(title="LLaMA API", description="API для взаимодействия с разными типами LLaMA агентов")
+
+# Настройка CORS
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
 
 # Базовые модели запросов и ответов
 class BasicRequest(BaseModel):
@@ -277,6 +294,17 @@ async def get_chat_page():
     </body>
     </html>
     """
+
+@app.options("/basic")
+async def basic_options():
+    return JSONResponse(
+        content={"message": "OK"},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 @app.post("/basic", response_model=BasicResponse)
 async def basic_chat(request: BasicRequest):

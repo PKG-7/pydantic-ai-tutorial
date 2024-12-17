@@ -51,7 +51,7 @@ if __name__ == "__main__":
     )
     
     response = agent.run_sync(
-        user_prompt="What's the status of my last order 12345?", 
+        user_prompt="What's the status of my last order #12345?", 
         deps=customer
     )
     print(response.data.model_dump_json(indent=2)) 

@@ -10,6 +10,7 @@ import os
 from basic import agent1
 from structured_response import agent2
 from tools import agent, CustomerDetails
+from models.database_actions import DatabaseAction, DatabaseCommand, StructuredResponse
 
 app = FastAPI(title="LLaMA API", description="API для взаимодействия с разными типами LLaMA агентов")
 
@@ -32,18 +33,49 @@ app.add_middleware(
 # Базовые модели запросов и ответов
 class BasicRequest(BaseModel):
     message: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "message": "Измени цену аренды для помещения с id unit_1 на 30000 рублей в месяц"
+            }
+        }
 
 class BasicResponse(BaseModel):
     response: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "response": "Я изменю цену аренды помещения unit_1 на 30000 рублей в месяц."
+            }
+        }
 
-class StructuredRequest(BaseModel):
+class DbResolverRequest(BaseModel):
     message: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "message": "Измени цену аренды для помещения с id unit_1 на 30000 рублей в месяц"
+            }
+        }
 
 class ShippingRequest(BaseModel):
     message: str
     customer_id: str
     name: str
     email: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "message": "Какой статус моего заказа #12345?",
+                "customer_id": "1",
+                "name": "Test User",
+                "email": "test@example.com"
+            }
+        }
 
 @app.get("/", response_class=HTMLResponse)
 async def get_chat_page():
@@ -157,7 +189,7 @@ async def get_chat_page():
             
             <select id="bot-type" onchange="handleBotTypeChange()">
                 <option value="basic">Базовый бот</option>
-                <option value="structured">Структурированный бот</option>
+                <option value="dbResolver">Структурированный бот</option>
                 <option value="shipping">Бот доставки</option>
             </select>
 
@@ -182,7 +214,7 @@ async def get_chat_page():
             const parametersContainer = document.getElementById('parameters-container');
 
             function handleBotTypeChange() {
-                sidebar.style.display = botType.value === 'structured' ? 'block' : 'none';
+                sidebar.style.display = botType.value === 'dbResolver' ? 'block' : 'none';
             }
 
             function addParameter(label, value) {
@@ -243,8 +275,8 @@ async def get_chat_page():
                     case 'basic':
                         endpoint = '/basic';
                         break;
-                    case 'structured':
-                        endpoint = '/structured';
+                    case 'dbResolver':
+                        endpoint = '/dbResolver';
                         break;
                     case 'shipping':
                         endpoint = '/shipping';
@@ -269,7 +301,7 @@ async def get_chat_page():
                     const data = await response.json();
                     let botResponse = data.response;
                     
-                    if (botType.value === 'structured') {
+                    if (botType.value === 'dbResolver') {
                         updateParameters(data);
                         botResponse = data.response || JSON.stringify(data, null, 2);
                     } else if (typeof data === 'object' && !data.response) {
@@ -315,12 +347,47 @@ async def basic_chat(request: BasicRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/structured")
-async def structured_chat(request: StructuredRequest):
-    """Чат со структурированным ответом"""
+@app.post("/dbResolver", response_model=StructuredResponse)
+async def db_resolver_chat(request: DbResolverRequest):
+    """Чат со структурированным ответом и возможностью выполнения команд базы данных.
+    
+    Возвращает структурированный ответ, который может содержать:
+    - Текстовый ответ
+    - Команду для работы с базой данных (create/update/delete)
+    
+    Примеры запросов:
+    ```
+    {"message": "Измени цену аренды для помещения с id unit_1 на 30000 рублей в месяц"}
+    {"message": "Создай новое помещение unit_2 площадью 50 квадратных метров"}
+    {"message": "Удали помещение с id unit_3"}
+    {"message": "Привет, как дела?"}
+    ```
+    
+    Примеры ответов:
+    ```json
+    {
+        "action": "database",
+        "response": "Я изменю цену аренды помещения unit_1 на 30000 рублей в месяц.",
+        "database_command": {
+            "action": "update",
+            "table": "units",
+            "id": "unit_1",
+            "values": {
+                "price_rent_month": 30000
+            }
+        }
+    }
+    
+    {
+        "action": "text",
+        "response": "Зд��авствуйте! У меня все хорошо, спасибо что спросили. Как я могу вам помочь с управлением помещениями?",
+        "database_command": null
+    }
+    ```
+    """
     try:
         response = agent2.run_sync(request.message)
-        return response.data.model_dump()
+        return response.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

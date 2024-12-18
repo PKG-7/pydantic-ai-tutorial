@@ -7,12 +7,16 @@ from typing import Optional
 import uvicorn
 import os
 
-from basic import agent1
-from structured_response import agent2
-from tools import agent, CustomerDetails
-from models.database_actions import DatabaseAction, DatabaseCommand, StructuredResponse
+from src.basic import agent1
+from src.structured_response import agent2
+from src.tools import agent, CustomerDetails
+from src.models.database_actions import DatabaseAction, DatabaseCommand, StructuredResponse
+from src.routes.agent import router as agent_router
 
 app = FastAPI(title="LLaMA API", description="API для взаимодействия с разными типами LLaMA агентов")
+
+# Подключаем роутер агента
+app.include_router(agent_router)
 
 # Настройка CORS
 origins = [
@@ -30,7 +34,7 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-# Базовые модели запросов и ответов
+# Базовые модели апросов и ответов
 class BasicRequest(BaseModel):
     message: str
     
@@ -351,7 +355,7 @@ async def basic_chat(request: BasicRequest):
 async def db_resolver_chat(request: DbResolverRequest):
     """Чат со структурированным ответом и возможностью выполнения команд базы данных.
     
-    Возвращает структурированный ответ, который может содержать:
+    Возвращает структурированный ответ, оторый может содержать:
     - Текстовый ответ
     - Команду для работы с базой данных (create/update/delete)
     
@@ -380,7 +384,7 @@ async def db_resolver_chat(request: DbResolverRequest):
     
     {
         "action": "text",
-        "response": "Зд��авствуйте! У меня все хорошо, спасибо что спросили. Как я могу вам помочь с управлением помещениями?",
+        "response": "Здравствуйте! У меня все хорошо, спасибо что спросили. Как я могу вам помочь с управлением помещениями?",
         "database_command": null
     }
     ```

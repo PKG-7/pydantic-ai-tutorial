@@ -3,7 +3,7 @@
 """
 
 from pydantic_ai import Agent
-from connection import model
+from src.connection import model
 
 # Создаем простого агента
 agent1 = Agent(

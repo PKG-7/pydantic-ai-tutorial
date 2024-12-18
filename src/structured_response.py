@@ -4,8 +4,8 @@
 
 from pydantic import BaseModel
 from pydantic_ai import Agent
-from connection import model
-from models.database_actions import StructuredResponse
+from src.connection import model
+from src.models.database_actions import StructuredResponse
 
 class ResponseModel(BaseModel):
     """Базовая модель ответа для всех агентов."""
@@ -73,7 +73,7 @@ agent2 = Agent(
 Запрос: "Привет, как дела?"
 Ответ: {
     "action": "text",
-    "response": "Здравствуйте! У меня все хорошо, спасибо что спросили. Как я могу вам помочь с управлением помещениями?",
+    "response": "Здравствуйте! �� меня все хорошо, спасибо что спросили. Как я могу вам помочь с управлением помещениями?",
     "database_command": null
 }
 

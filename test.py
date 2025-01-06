@@ -4,9 +4,11 @@ from pydantic_ai.models.ollama import OllamaModel
 
 nest_asyncio.apply()
 
+model_variants = ['qwen2.5-coder:32b', 'qwen2.5-coder:7b']
+
 # Инициализация модели
 ollama_model = OllamaModel(
-    model_name='qwen2.5-coder:7b',
+    model_name='qwen2.5-coder:32b',
     base_url='http://192.168.1.31:11434/v1'
 )
 

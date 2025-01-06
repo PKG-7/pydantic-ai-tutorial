@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.chat import router as chat_router
+from app.agent_rent import router as agent_rent_router
 
 nest_asyncio.apply()
 
@@ -24,6 +25,7 @@ app.add_middleware(
 
 # Подключаем роутеры
 app.include_router(chat_router, prefix="/api")
+app.include_router(agent_rent_router, prefix="/api")
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))

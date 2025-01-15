@@ -1,10 +1,7 @@
-"""
-Простой бот с базовым функционалом ответов на вопросы.
-"""
-
 from pydantic_ai import Agent
 from connection import model
 
+#Простой бот с базовым функционалом ответов на вопросы.
 # Создаем простого агента
 agent1 = Agent(
     model=model,

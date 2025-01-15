@@ -4,9 +4,9 @@
 
 from typing import Dict
 from pydantic_ai import Agent, RunContext, Tool, ModelRetry
-from connection import model
-from dependencies import CustomerDetails
-from structured_response import ResponseModel
+from src.connection import model
+from src.dependencies import CustomerDetails
+from src.structured_response import ResponseModel
 
 shipping_info_db: Dict[str, str] = {
     "#12345": "Shipped on 2024-12-01",

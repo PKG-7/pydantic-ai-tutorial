@@ -1,7 +1,7 @@
 Сначала активируйте виртуальное окружение. В Windows это делается так:
 
 ```
-cd D:\push-f\pydanticlesson\pydantic-ai-tutorial
+cd в папку backend
 venv\Scripts\activate
 ```
 

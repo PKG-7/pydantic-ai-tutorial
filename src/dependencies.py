@@ -5,9 +5,9 @@
 from typing import List, Optional
 from pydantic import BaseModel
 from pydantic_ai import Agent, RunContext
-from connection import model
-from utils.markdown import to_markdown
-from structured_response import ResponseModel
+from src.connection import model
+from src.utils.markdown import to_markdown
+from src.structured_response import ResponseModel
 
 class Order(BaseModel):
     """Структура для деталей заказа."""
